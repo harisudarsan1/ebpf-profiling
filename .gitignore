@@ -1,0 +1,6 @@
+/build
+/examples/c/build
+/examples/c/.xmake
+/.idea
+/src/build
+./src/.output/
