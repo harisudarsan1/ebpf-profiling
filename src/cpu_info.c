@@ -29,7 +29,7 @@ static long perf_event_open(struct perf_event_attr *hw_event, pid_t pid, int cpu
 
 int main(int argc, char **argv)
 {
-	int freq = 1, sw_event = 0, pid = -1, cpu;
+	int freq = 1, sw_event = 1, pid = -1, cpu;
 	struct cpu_info_bpf *skel = NULL;
 	struct perf_event_attr attr;
 	struct bpf_link **links = NULL;
