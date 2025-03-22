@@ -41,14 +41,14 @@ executable('sysprof',
     dependency('zlib')
   ],
   
-  c_args: [
-    '-fPIE',              # Explicit position-independent code
-    '-Wall'
-  ],
-  link_args: [
-    '-pie',               # Required for PIE linking
-    '-Wl,--build-id=sha1'
-  ],
+  # c_args: [
+  #   '-fPIE',              # Explicit position-independent code
+  #   '-Wall'
+  # ],
+  # link_args: [
+  #   '-pie',               # Required for PIE linking
+  #   '-Wl,--build-id=sha1'
+  # ],
   install: true,
 )
 # Explicit dependency - critical!

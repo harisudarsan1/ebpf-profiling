@@ -3,6 +3,7 @@
 #include <sys/resource.h>
 #include <bpf/libbpf.h>
 #include <sysprof.skel.h> // From ebpf/ directory
+#include "ebpf/sysprof-ebpf.h"
 
 static int libbpf_print_fn(enum libbpf_print_level level, const char *format, va_list args)
 {

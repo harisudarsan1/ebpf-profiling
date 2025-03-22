@@ -1,4 +1,3 @@
-# project('ebpf', 'c')
 
 fs = import('fs')
 # Map uname output to our arch string.
@@ -39,27 +38,27 @@ bpftool = find_program('bpftool', required: true)
 # clang_bpf_sys_includes = clang_includes_output.split('\n')
 
 # Compiler flags for BPF code
-ebpf_cflags = [
-  '-g',
-  '-O2',
-  '-target', 'bpf',
-  '-D__TARGET_ARCH_' + arch,
-   '-fno-PIE',        
-  '-I../../libbpf/include/uapi',
-  '-I' + fs.parent(vmlinux_path),
-]
+# ebpf_cflags = [
+#   '-g',
+#   '-O2',
+#   '-target', ' bpf',
+#   '-D__TARGET_ARCH_' + arch,
+#    '-fno-PIE',        
+#   '-I../../libbpf/include/uapi',
+#   '-I' + fs.parent(vmlinux_path),
+# ]
 
 # List of eBPF source files.
-ebpf_srcs = ['sysprof-bpf.c']
+ebpf_srcs = ['sysprof.c']
 ebpf_skeletons = []
 
 # Generate BPF skeleton header
 skel_h = custom_target('sysprof-skel',
-  input: 'sysprof-bpf.c',
+  input: 'sysprof.c',
   output: 'sysprof.skel.h',
   command: [
     'sh', '-c',
-    'clang -g -target bpf -O2 -fno-PIE -I../../vmlinux.h/include/x86 -c @INPUT@ -o sysprof.bpf.o && ' +
+    'clang -g -target bpf -O2 -fno-PIE -I'+ fs.parent(vmlinux_path)+ ' -D__TARGET_ARCH_'+arch +' -c @INPUT@ -o sysprof.bpf.o && ' +
     'llvm-strip -g sysprof.bpf.o && ' +
     'bpftool gen skeleton sysprof.bpf.o > sysprof.skel.h',
   ],
