@@ -19,7 +19,7 @@ if arch == 'unknown'
 endif
 
 # Path to vmlinux.h (assumed relative to this directory)
-vmlinux_path = join_paths('..', '..', 'vmlinux.h', 'include', arch, 'vmlinux.h')
+vmlinux_path = join_paths('..', '..', '..', 'vmlinux.h', 'include', arch, 'vmlinux.h')
 
 # Include directories for libbpf and the kernel header.
 inc_dirs = include_directories(
@@ -42,7 +42,7 @@ ebpf_cflags = [
   '-O2',
   '-target', 'bpf',
   '-D__TARGET_ARCH_' + arch,
-  '-I../../libbpf/include/uapi',
+  '-I../../../libbpf/include/uapi',
   '-I' + fs.parent(vmlinux_path),
 ]
 
@@ -56,12 +56,17 @@ foreach src : ebpf_srcs
 
   comp_target = custom_target(
     final_obj,
-    input: [src, vmlinux_path],
+    input: src,
     output: final_obj,
     command: [clang, ebpf_cflags, '-c', '@INPUT0@', '-o', '@OUTPUT@'],
+    build_by_default: true, # Ensure it's built by default
+    install: false,
   )
 
   ebpf_objects += comp_target
+
+  # Print the full path (for debugging)
+  message('Object file:', comp_target.full_path())
 endforeach
 
 # Optionally install or use ebpf_objects as needed
