@@ -1,0 +1,39 @@
+project('sysprof', 'c',
+  version: '1.0',
+  default_options: [
+    'warning_level=3',
+    'default_library=both'
+  ])
+
+# Include directories for the whole project
+includes = include_directories(
+  'ebpf',          # For #include "ebpf/sysprof-bpf.skel.h"
+  join_paths('..', 'libbpf', 'include')
+)
+
+# Subdirectory for eBPF components
+subdir('ebpf')
+
+# Main library
+sources = [
+  'sysprof.c',
+  # 'cpu_info.c',
+  # Other sources
+]
+
+libsysprof = library('sysprof',
+  sources,
+  include_directories: includes,
+  dependencies: [
+    dependency('libbpf'),
+    dependency('elf'),
+    dependency('z')
+  ],
+  install: true
+)
+
+# Expose the library as dependency
+sysprof_dep = declare_dependency(
+  include_directories: includes,
+  link_with: libsysprof
+)
