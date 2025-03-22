@@ -30,6 +30,7 @@ inc_dirs = include_directories(
 
 # Find the Clang compiler.
 clang = find_program('clang', required: true)
+bpftool = find_program('bpftool', required: true)
 
 # Retrieve Clang's default system include paths.
 # clang_includes_cmd = "clang -v -E - < /dev/null 2>&1 | sed -n '/<...> search starts here:/,/End of search list./{ s| \\(/.*\\)|-idirafter \\1|p }'"
@@ -53,8 +54,8 @@ ebpf_objects = []
 foreach src : ebpf_srcs
   base = src.split('.')[0]
   final_obj = base + '.bpf.o'
-
-  comp_target = custom_target(
+  skel_h = base + '.skel.h'
+  ebpf_obj = custom_target(
     final_obj,
     input: src,
     output: final_obj,
@@ -63,10 +64,27 @@ foreach src : ebpf_srcs
     install: false,
   )
 
-  ebpf_objects += comp_target
+  # ebpf_objects += comp_target
 
   # Print the full path (for debugging)
-  message('Object file:', comp_target.full_path())
+  message('Object file:', ebpf_obj.full_path())
+
+  # 2. Generate skeleton header (to source directory)
+  custom_target(
+    'gen-skel-' + skel_h,
+    input: ebpf_obj,
+    output: skel_h, # Meson thinks this goes to builddir
+    command: [
+      'sh',
+      '-c', # Redirect output directly to source directory
+      bpftool.path()
+      + ' gen skeleton @INPUT@ > '
+      + meson.current_source_dir() / skel_h,
+    ],
+    build_by_default: true,
+    install: false,
+  )
+
 endforeach
 
 # Optionally install or use ebpf_objects as needed
