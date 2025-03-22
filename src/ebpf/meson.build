@@ -70,7 +70,7 @@ foreach src : ebpf_srcs
   message('Object file:', ebpf_obj.full_path())
 
   # 2. Generate skeleton header (to source directory)
-  custom_target(
+ skeleton = custom_target(
     'gen-skel-' + skel_h,
     input: ebpf_obj,
     output: skel_h, # Meson thinks this goes to builddir
