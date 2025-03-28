@@ -21,7 +21,7 @@ INCLUDES := -I$(OUTPUT) -I ../libbpf/include/uapi -I$(dir $(VMLINUX))
 CFLAGS := -g -Wall
 ALL_LDFLAGS := $(LDFLAGS) $(EXTRA_LDFLAGS)
 
-APPS =  network cpu_info disk_usage sysprof
+APPS =  network cpu_info disk_usage 
 
 # Get Clang's default includes on this system. We'll explicitly add these dirs
 # to the includes list when compiling with `-target bpf` because otherwise some

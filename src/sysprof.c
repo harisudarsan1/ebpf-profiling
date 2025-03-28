@@ -10,8 +10,15 @@ static int libbpf_print_fn(enum libbpf_print_level level, const char *format, va
 	return vfprintf(stderr, format, args);
 }
 
+static int handle_event(void *ctx, void *data, size_t data_sz)
+{
+	const struct network_event *e = data;
+	printf("ifname: %s with total bytes:%d \n", e->ifname, e->bytes);
+}
+
 int main(int argc, char **argv)
 {
+	struct ring_buffer *rb = NULL;
 	struct sysprof_bpf *skel;
 	int err;
 
@@ -42,11 +49,30 @@ int main(int argc, char **argv)
 		goto cleanup;
 	}
 
+	/* Set up ring buffer polling */
+	rb = ring_buffer__new(bpf_map__fd(skel->maps.network_map), handle_event, NULL, NULL);
+	if (!rb) {
+		err = -1;
+		fprintf(stderr, "Failed to create ring buffer\n");
+		goto cleanup;
+	}
+
 	printf("Successfully started! Please run `sudo cat /sys/kernel/debug/tracing/trace_pipe` "
 	       "to see output of the BPF programs.\n");
 
 	for (;;) {
 		/* trigger our BPF program */
+
+		err = ring_buffer__poll(rb, 100 /* timeout, ms */);
+		/* Ctrl-C will cause -EINTR */
+		if (err == -EINTR) {
+			err = 0;
+			break;
+		}
+		if (err < 0) {
+			printf("Error polling perf buffer: %d\n", err);
+			break;
+		}
 		fprintf(stderr, ".");
 		sleep(1);
 	}
